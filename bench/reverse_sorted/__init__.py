@@ -1,0 +1,1 @@
+from bench.reverse_sorted.reverse_sorted_input import generate_input
