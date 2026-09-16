@@ -1,15 +1,8 @@
-"""
-Heap Sort Algorithm Implementation
-Independent module with self-contained logic and metric collection.
-"""
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class HeapSort:
-    """
-    Heap Sort implementation using max-heap with metric tracking.
-    """
 
     def __init__(self, key: Optional[Callable[[Any], Any]] = None):
         self.key = key if key is not None else (lambda x: x)
@@ -18,13 +11,6 @@ class HeapSort:
         self.time_taken = 0.0
 
     def sort(self, arr: List[Any], in_place: bool = True) -> Tuple[List[Any], Dict[str, Any]]:
-        """
-        Sorts the given list using the Heap Sort algorithm.
-
-        :param arr: The list of elements to be sorted.
-        :param in_place: If True, mutates the input array; otherwise works on a copy.
-        :return: (sorted_list, metrics_dict)
-        """
         target = arr if in_place else list(arr)
         n = len(target)
         self.comparisons = 0
@@ -54,18 +40,19 @@ class HeapSort:
         return target, metrics
 
     def _heapify(self, arr: List[Any], n: int, i: int) -> None:
+        key = self.key
         largest = i
         left = 2 * i + 1
         right = 2 * i + 2
 
         if left < n:
             self.comparisons += 1
-            if self.key(arr[left]) > self.key(arr[largest]):
+            if key(arr[left]) > key(arr[largest]):
                 largest = left
 
         if right < n:
             self.comparisons += 1
-            if self.key(arr[right]) > self.key(arr[largest]):
+            if key(arr[right]) > key(arr[largest]):
                 largest = right
 
         if largest != i:

@@ -1,15 +1,8 @@
-"""
-Merge Sort Algorithm Implementation
-Independent module with self-contained logic and metric collection.
-"""
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class MergeSort:
-    """
-    Merge Sort implementation (divide-and-conquer) with metric tracking.
-    """
 
     def __init__(self, key: Optional[Callable[[Any], Any]] = None):
         self.key = key if key is not None else (lambda x: x)
@@ -54,33 +47,39 @@ class MergeSort:
     def _merge(self, arr: List[Any], left: int, mid: int, right: int) -> None:
         left_part = arr[left : mid + 1]
         right_part = arr[mid + 1 : right + 1]
+        key = self.key
 
         i = 0
         j = 0
         k = left
+        comparisons = 0
+        swaps = 0
 
         while i < len(left_part) and j < len(right_part):
-            self.comparisons += 1
-            if self.key(left_part[i]) <= self.key(right_part[j]):  # <= maintains stability
+            comparisons += 1
+            if key(left_part[i]) <= key(right_part[j]):  # <= maintains stability
                 arr[k] = left_part[i]
                 i += 1
             else:
                 arr[k] = right_part[j]
                 j += 1
-            self.swaps += 1
+            swaps += 1
             k += 1
 
         while i < len(left_part):
             arr[k] = left_part[i]
-            self.swaps += 1
+            swaps += 1
             i += 1
             k += 1
 
         while j < len(right_part):
             arr[k] = right_part[j]
-            self.swaps += 1
+            swaps += 1
             j += 1
             k += 1
+
+        self.comparisons += comparisons
+        self.swaps += swaps
 
 
 def merge_sort(arr: List[Any], key: Optional[Callable[[Any], Any]] = None, in_place: bool = True) -> Tuple[List[Any], Dict[str, Any]]:

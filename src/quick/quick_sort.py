@@ -1,17 +1,9 @@
-"""
-Quick Sort Algorithm Implementation
-Independent module with self-contained logic and metric collection.
-"""
 import sys
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class QuickSort:
-    """
-    Quick Sort implementation using Median-of-Three pivot selection
-    and iterative / recursion-depth optimization to handle large/adversarial inputs safely.
-    """
 
     def __init__(self, key: Optional[Callable[[Any], Any]] = None):
         self.key = key if key is not None else (lambda x: x)
@@ -20,13 +12,7 @@ class QuickSort:
         self.time_taken = 0.0
 
     def sort(self, arr: List[Any], in_place: bool = True) -> Tuple[List[Any], Dict[str, Any]]:
-        """
-        Sorts the given list using the Quick Sort algorithm.
 
-        :param arr: The list of elements to be sorted.
-        :param in_place: If True, mutates the input array; otherwise works on a copy.
-        :return: (sorted_list, metrics_dict)
-        """
         target = arr if in_place else list(arr)
         n = len(target)
         self.comparisons = 0
@@ -64,18 +50,23 @@ class QuickSort:
         arr[pivot_idx], arr[high] = arr[high], arr[pivot_idx]
         self.swaps += 1
 
-        pivot_val = self.key(arr[high])
+        key = self.key
+        pivot_val = key(arr[high])
         i = low - 1
+        comparisons = 0
+        swaps = 0
 
         for j in range(low, high):
-            self.comparisons += 1
-            if self.key(arr[j]) <= pivot_val:
+            comparisons += 1
+            if key(arr[j]) <= pivot_val:
                 i += 1
                 arr[i], arr[j] = arr[j], arr[i]
-                self.swaps += 1
+                swaps += 1
 
         arr[i + 1], arr[high] = arr[high], arr[i + 1]
-        self.swaps += 1
+        swaps += 1
+        self.comparisons += comparisons
+        self.swaps += swaps
         return i + 1
 
     def _quick_sort_iterative(self, arr: List[Any], low: int, high: int) -> None:
