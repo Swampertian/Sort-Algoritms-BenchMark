@@ -1,0 +1,33 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Resultados completos para entrada inversamente ordenada. Tempos em segundos.}
+\label{tab:reverse_sorted}
+\begin{tabular}{lrrrr}
+\toprule
+Algoritmo & $n$ & Comparações & Contador $M$ & Tempo (s) \\
+\midrule
+Bubble Sort & 100 & 4\,950 & 4\,942 & 0,000299 \\
+Selection Sort & 100 & 4\,950 & 54 & 0,000173 \\
+Insertion Sort & 100 & 4\,949 & 4\,942 & 0,000231 \\
+Merge Sort & 100 & 320 & 672 & 0,000055 \\
+Quick Sort & 100 & 807 & 509 & 0,000049 \\
+Heap Sort & 100 & 944 & 515 & 0,000072 \\
+\midrule
+Bubble Sort & 1\,000 & 499\,500 & 499\,458 & 0,035396 \\
+Selection Sort & 1\,000 & 499\,500 & 516 & 0,019358 \\
+Insertion Sort & 1\,000 & 499\,497 & 499\,458 & 0,024934 \\
+Merge Sort & 1\,000 & 4\,952 & 9\,976 & 0,000718 \\
+Quick Sort & 1\,000 & 14\,295 & 8\,928 & 0,000720 \\
+Heap Sort & 1\,000 & 15\,965 & 8\,321 & 0,001233 \\
+\midrule
+Bubble Sort & 10\,000 & 49\,995\,000 & 49\,994\,483 & 3,918775 \\
+Selection Sort & 10\,000 & 49\,995\,000 & 5\,232 & 1,968484 \\
+Insertion Sort & 10\,000 & 49\,994\,980 & 49\,994\,483 & 2,650203 \\
+Merge Sort & 10\,000 & 64\,909 & 133\,616 & 0,009501 \\
+Quick Sort & 10\,000 & 230\,135 & 141\,224 & 0,011220 \\
+Heap Sort & 10\,000 & 226\,745 & 116\,721 & 0,017544 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize Fonte: saída fornecida pelo grupo. $M$ segue as convenções da Seção~\ref{sec:metricas}; as comparações do Quick Sort estão subcontadas.
+\end{table}
