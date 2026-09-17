@@ -1,0 +1,208 @@
+\documentclass[12pt]{uftex}
+\usepackage{calc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\input{identificacao}
+\graphicspath{{figuras/}}
+\hypersetup{pdftitle={Análise empírica de algoritmos de ordenação},pdfauthor={Eliézer Alencar Moreira; Pedro Lucas Moreira Pinto; Pedro Ryan Oliveira de Almeida}}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.8}
+\newcommand{\grafico}[3]{%
+  \begin{figure}[htbp]\centering
+  \includegraphics[width=0.92\textwidth,height=0.35\textheight,keepaspectratio]{#1}
+  \caption{#2}\label{#3}
+  \par\smallskip{\footnotesize Fonte: gráficos fornecidos pelo grupo.}
+  \end{figure}}
+\begin{document}
+\hypersetup{pageanchor=false}
+% Capa de trabalho em grupo, com a classe UFTex e marca oficial da UFT.
+\begin{titlepage}
+\centering
+\includegraphics[width=2.6cm,height=2.8cm,keepaspectratio]{logo_uft.png}\par
+\vspace{0.5cm}
+{\bfseries UNIVERSIDADE FEDERAL DO TOCANTINS\par}
+{\Campus\par}
+{\Curso\par}
+\vspace{1.5cm}
+{\Integrantes\par}
+\vfill
+{\Large\bfseries Análise empírica de algoritmos de ordenação\par}
+\vspace{2cm}
+\begin{flushright}\begin{minipage}{0.58\textwidth}
+Relatório apresentado à disciplina \Disciplina, sob responsabilidade de \Docente, como parte do trabalho sobre análise empírica de algoritmos de ordenação.
+\end{minipage}\end{flushright}
+\vfill
+\Cidade\par\Ano
+\end{titlepage}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+\chapter*{Resumo}
+Este trabalho compara seis implementações de ordenação em Python: Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort e Heap Sort. A base experimental contém 54 registros, correspondentes a três tamanhos de entrada (100, 1.000 e 10.000 elementos), três configurações de ordem e seis algoritmos. São examinados o tempo de execução, as comparações e os contadores de trocas ou movimentações. Na entrada aleatória de 10.000 elementos, o Quick Sort registrou o menor tempo, 0,008097 s; na inversamente ordenada, o Merge Sort obteve 0,009501 s; na ordenada, o Bubble Sort com parada antecipada obteve 0,000451 s. A discussão relaciona esses resultados às características das implementações e às complexidades assintóticas. A ausência de repetições documentadas e de entradas parcialmente ordenadas, assim como uma subcontagem de comparações do Quick Sort, limita a generalização das conclusões.
+
+\noindent\textbf{Palavras-chave:} ordenação; análise empírica; complexidade; desempenho.
+\tableofcontents
+\clearpage\pagenumbering{arabic}\pagestyle{plain}
+
+\chapter{Introdução}
+Ordenar consiste em reorganizar elementos segundo uma relação de ordem. Além de constituir um problema fundamental da computação, a ordenação é uma etapa de operações como busca, agrupamento e apresentação de dados. Diferentes métodos podem produzir a mesma sequência final com custos bastante distintos, dependendo do tamanho da entrada, de sua organização inicial e das decisões de implementação.
+
+O objetivo deste trabalho é investigar empiricamente essa diferença e relacionar as medições com as complexidades estudadas na disciplina. Foram selecionados os seis algoritmos propostos no enunciado. Bubble Sort permite observar trocas adjacentes e o efeito de uma parada antecipada; Selection Sort oferece uma referência quadrática pouco sensível à ordem inicial; Insertion Sort representa a construção incremental de um prefixo ordenado. Merge Sort e Quick Sort permitem comparar duas formas de divisão e conquista; Heap Sort explora uma estrutura de seleção baseada em heap. Essa diversidade possibilita confrontar adaptação à entrada, custo de comparações e movimentações.
+
+\section{Fundamentação teórica}
+A Tabela~\ref{tab:complexidade} resume as ordens de crescimento temporal usuais para essas versões. As referências de Sedgewick e Wayne fundamentam as propriedades de Selection e Insertion~\cite{elementary}, Merge~\cite{merge}, Quick~\cite{quick} e Heap~\cite{heap}. O melhor caso linear do Bubble decorre, especificamente, da interrupção após uma passagem sem trocas no código analisado.
+
+\begin{table}[htbp]\centering
+\caption{Ordens de crescimento temporal de referência.}\label{tab:complexidade}
+\begin{tabular}{lccc}\toprule
+Algoritmo & Melhor caso & Caso médio & Pior caso \\\midrule
+Bubble Sort & $\Theta(n)$ & $\Theta(n^2)$ & $\Theta(n^2)$ \\
+Selection Sort & $\Theta(n^2)$ & $\Theta(n^2)$ & $\Theta(n^2)$ \\
+Insertion Sort & $\Theta(n)$ & $\Theta(n^2)$ & $\Theta(n^2)$ \\
+Merge Sort & $\Theta(n\log n)$ & $\Theta(n\log n)$ & $\Theta(n\log n)$ \\
+Quick Sort & $\Theta(n\log n)$ & $\Theta(n\log n)$ & $\Theta(n^2)$ \\
+Heap Sort & $\Omega(n)$ & $\Theta(n\log n)$ & $\Theta(n\log n)$ \\
+\bottomrule\end{tabular}
+\par\smallskip\footnotesize No Quick, o caso médio pressupõe uma distribuição adequada das entradas. Para Heap, o melhor caso depende da hipótese sobre chaves: todas iguais podem levar a tempo linear nesta versão com interrupção do heapify; o limite superior é $O(n\log n)$ em qualquer entrada. A tabela não representa medições.
+\end{table}
+
+As ordens assintóticas não determinam tempos absolutos: constantes de implementação e o ambiente também influenciam as medições.
+
+\chapter{Metodologia}
+\section{Base experimental e abrangência}
+A análise utiliza a saída textual fornecida pelo grupo, preservada em \texttt{dados/stdout\_original.txt}, e os gráficos disponíveis no repositório na revisão \texttt{76413e7}. A saída foi convertida em CSV convencional, sem modificar as métricas, e em três tabelas. Cada linha identifica algoritmo, cenário, tamanho, comparações, contador de movimentações e tempo.
+
+Foram documentadas as combinações de seis algoritmos, $n\in\{100,1.000,10.000\}$ e três cenários: aleatório, ordenado em ordem não decrescente e inversamente ordenado em ordem não crescente. Portanto, há $6\times3\times3=54$ registros. Embora o programa ofereça também 500, 5.000, 50.000 e 100.000 elementos, não há resultados desses tamanhos na base recebida. O recorte descrito é o efetivamente registrado; não foi fornecida a justificativa operacional para a seleção desses tamanhos.
+
+Não há experimento de entrada parcialmente ordenada. Consequentemente, este relatório não atribui resultados a esse cenário e reconhece a cobertura incompleta da proposta experimental. Eventuais expectativas a seu respeito são identificadas como teóricas.
+
+\section{Geração das entradas e protocolo}
+Os geradores utilizam \texttt{random.Random(42)} e inteiros obtidos por \texttt{randint(0, size * 10)}, incluindo os extremos. Repetições de valores são possíveis. Para cada tamanho, os cenários ordenado e inverso são produzidos ordenando a sequência pseudoaleatória gerada com a mesma semente; preservam, assim, o mesmo multiconjunto de valores.
+
+O orquestrador gera a entrada-base e passa uma cópia a cada algoritmo. O parâmetro \texttt{in\_place=True} faz a ordenação ocorrer nessa cópia. A geração da entrada e a cópia feita pelo orquestrador ficam fora da região cronometrada. Os algoritmos são executados em ordem fixa: Bubble, Selection, Insertion, Merge, Quick e Heap. Os cenários seguem a sequência aleatório, ordenado e inverso. Essa ordem não elimina efeitos de aquecimento ou interferência do ambiente.
+
+O tempo é obtido pela diferença entre duas chamadas a \texttt{time.perf\_counter()}, relógio destinado à medição de intervalos~\cite{python-time}. A duração inclui as atualizações dos contadores e as chamadas à função de chave realizadas dentro da ordenação. A saída apresenta seis casas decimais; isso é precisão de apresentação, não garantia de exatidão experimental.
+
+O código não contém laço de repetições e há um único registro por combinação. Os valores são tratados como medições individuais, sem média, desvio-padrão ou intervalo de confiança. Os experimentos foram executados, conforme informações fornecidas pelo grupo, em um computador com processador Intel Core i9-14900F, 64 GB de memória RAM, sistema operacional CachyOS (Linux) e Python 3.13. A versão de correção do Python (3.13.x) não foi especificada. Esses dados se referem à máquina dos experimentos originais.
+
+\section{Definição e limitações das métricas}\label{sec:metricas}
+O tamanho é o número de elementos; o tipo de entrada descreve sua organização inicial. O contador de comparações procura registrar avaliações entre chaves, não testes de limites de laços. Entretanto, no Quick Sort, a escolha da mediana de três incrementa o contador em dois, mesmo quando as expressões condicionais executam mais comparações. Uma verificação com a entrada $[1,3,2]$ identificou oito comparações efetivas entre valores e apenas quatro registradas na ordenação completa. Os valores originais são preservados nas tabelas, com essa ressalva, e não servem para quantificar exatamente o trabalho comparativo do Quick.
+
+O campo \texttt{swaps}, aqui denominado contador $M$, também não tem unidade uniforme. Bubble, Selection e Heap contam trocas de pares; Quick inclui trocas executadas mesmo quando os índices coincidem. Insertion conta deslocamentos para a direita, mas não a escrita final do elemento inserido. Merge conta escritas durante a intercalação no vetor principal, sem incluir as cópias feitas por fatiamento para vetores auxiliares. Portanto, $M$ é útil para analisar a evolução de uma implementação, mas não representa um total homogêneo de escritas entre todos os algoritmos. Zero em $M$ no Insertion não significa ausência de atribuições.
+
+\chapter{Implementação}
+Os algoritmos ficam em módulos independentes de \texttt{src/}. Cada classe fornece o método \texttt{sort}, que retorna a lista ordenada e um dicionário de métricas. A função \texttt{build\_algorithms}, em \texttt{src/main.py}, instancia as seis classes. O benchmark reside em \texttt{bench/main.py}; \texttt{bench/plot.py} produz os gráficos com Matplotlib.
+
+\section{Bubble, Selection e Insertion Sort}
+Bubble compara vizinhos e troca pares fora de ordem. Ao final de uma passagem sem trocas, encerra a execução. Em uma entrada ordenada de tamanho $n>0$, realiza apenas $n-1$ comparações. Selection percorre o sufixo ainda não ordenado à procura do mínimo e só troca quando o índice escolhido difere da posição corrente. Assim, realiza exatamente $n(n-1)/2$ comparações, independentemente da ordem inicial.
+
+Insertion armazena o próximo elemento, desloca os anteriores estritamente maiores e insere o elemento na posição encontrada. Entradas com poucas inversões exigem menos deslocamentos. Bubble e Insertion preservam a ordem relativa de chaves iguais nessas versões; Selection pode modificá-la. Essa propriedade é inferida do código, não de uma medição de estabilidade.
+
+\section{Merge Sort}
+Merge divide recursivamente o intervalo ao meio e intercala os resultados. A intercalação utiliza listas auxiliares criadas por fatiamento. Ao comparar valores iguais, escolhe o da metade esquerda, preservando estabilidade. O tempo é $\Theta(n\log n)$ e o espaço auxiliar máximo é $O(n)$. O uso de \texttt{in\_place=True} significa que o resultado substitui o conteúdo da lista recebida, não que o algoritmo dispensa memória auxiliar.
+
+\section{Quick Sort}
+Quick emprega uma pilha explícita de intervalos. Seleciona o pivô pela mediana dos elementos inicial, central e final e o move para a extremidade direita. A partição segue o esquema de Lomuto, usando comparação menor ou igual ao pivô. O intervalo maior é empilhado primeiro, de modo que o menor seja processado antes pela pilha LIFO.
+
+Essa escolha de pivô difere de versões que usam sempre o primeiro ou o último elemento. Entradas ordenadas não implicam automaticamente seu pior caso. A mediana de três, contudo, não garante partições equilibradas em todas as entradas, e chaves todas iguais podem produzir partições degeneradas nessa implementação. Permanece possível tempo quadrático. A falha de instrumentação descrita na Seção~\ref{sec:metricas} não deve ser confundida com uma medição correta do total de comparações.
+
+\section{Heap Sort}
+Heap constrói um heap máximo de baixo para cima. Em seguida, troca a raiz com o último elemento da região ativa, reduz essa região e restaura o heap. O procedimento \texttt{heapify} é recursivo, de modo que esta versão utiliza até $O(\log n)$ de pilha de chamadas, embora não crie um vetor auxiliar de tamanho $n$. A construção custa $O(n)$ e o processo completo possui limite superior $O(n\log n)$.
+
+\chapter{Resultados}
+\section{Tabelas das medições}
+As Tabelas~\ref{tab:random}, \ref{tab:sorted} e \ref{tab:reverse_sorted} reproduzem os 54 registros recebidos. Não houve correção retroativa de contadores nem repetição dos experimentos para produzir este relatório. A indicação de tempos pequenos deve ser interpretada considerando a resolução impressa e a ausência de repetições.
+\input{tabelas/random}
+\clearpage
+\input{tabelas/sorted}
+\clearpage
+\input{tabelas/reverse_sorted}
+\clearpage
+\section{Tempo em função do tamanho}
+\grafico{time_comparison_random.png}{Tempo para entradas aleatórias.}{fig:tempo-random}
+\grafico{time_comparison_sorted.png}{Tempo para entradas ordenadas.}{fig:tempo-sorted}
+\clearpage
+\grafico{time_comparison_reverse_sorted.png}{Tempo para entradas inversamente ordenadas.}{fig:tempo-reverse}
+\grafico{overall_comparison_bar.png}{Comparação temporal dos três cenários em $n=10.000$.}{fig:geral}
+\clearpage
+As figuras usam escala linear. Com isso, os maiores tempos dos algoritmos quadráticos comprimem visualmente as curvas mais rápidas. A identificação de diferenças pequenas deve recorrer às tabelas. Os segmentos unem somente os tamanhos observados; não são medições intermediárias nem ajustes de uma função de crescimento.
+
+\section{Comparações e movimentações}
+\grafico{comparisons_vs_size_random.png}{Comparações registradas em entradas aleatórias. Quick apresenta subcontagem.}{fig:comp-random}
+\grafico{comparisons_vs_size_sorted.png}{Comparações registradas em entradas ordenadas. Quick apresenta subcontagem.}{fig:comp-sorted}
+\clearpage
+\grafico{comparisons_vs_size_reverse_sorted.png}{Comparações registradas em entradas inversas. Quick apresenta subcontagem.}{fig:comp-reverse}
+\grafico{swaps_vs_size_random.png}{Contador $M$ em entradas aleatórias; unidades dependem do algoritmo.}{fig:mov-random}
+\clearpage
+\grafico{swaps_vs_size_sorted.png}{Contador $M$ em entradas ordenadas; unidades dependem do algoritmo.}{fig:mov-sorted}
+\grafico{swaps_vs_size_reverse_sorted.png}{Contador $M$ em entradas inversas; unidades dependem do algoritmo.}{fig:mov-reverse}
+\clearpage
+
+\chapter{Análise e discussão}
+\section{Qual algoritmo apresentou melhor desempenho para entradas aleatórias?}
+Quick registrou o menor tempo nos três tamanhos aleatórios: 0,000277 s, 0,000603 s e 0,008097 s. Em 10.000 elementos, Merge levou 0,012089 s e Heap, 0,018882 s. Assim, Quick foi aproximadamente 1,49 vez mais rápido que Merge nessa medição, considerando a razão entre os tempos. Isso caracteriza a execução observada, não superioridade estatisticamente demonstrada ou universal.
+
+\section{Qual apresentou pior desempenho?}
+Bubble foi o mais lento nos três tamanhos aleatórios e nos três inversos. Em 10.000 elementos, seus tempos foram 3,227546 s no cenário aleatório e 3,918775 s no inverso. No cenário ordenado, Selection foi o mais lento nos três tamanhos; em 10.000 elementos, levou 1,918636 s. Portanto, o pior desempenho depende do cenário, mesmo dentro desse conjunto de implementações.
+
+\section{O comportamento está de acordo com a complexidade teórica?}
+Há evidências compatíveis com a teoria, sobretudo nas contagens. Selection realizou 4.950, 499.500 e 49.995.000 comparações nos três tamanhos, exatamente $n(n-1)/2$, em todos os cenários. Bubble e Insertion, nas entradas ordenadas, registraram 99, 999 e 9.999 comparações, correspondentes a $n-1$.
+
+No cenário aleatório, de 1.000 para 10.000 elementos, o tempo de Selection aumentou aproximadamente 98,19 vezes e o de Insertion, 98,09 vezes, próximos do fator 100 esperado para crescimento quadrático nesse intervalo. Para Merge, o fator foi aproximadamente 13,42, próximo de $10\log_2(10.000)/\log_2(1.000)\approx13,33$. Essas razões são descritivas: uma amostra por tamanho não demonstra a ordem assintótica. O fator do Bubble foi aproximadamente 81,98, ilustrando que os tempos não seguem exatamente uma curva teórica.
+
+O contador de escritas de Merge foi 672, 9.976 e 133.616 em cada cenário. Sua igualdade entre ordens iniciais é coerente com a intercalação de todos os elementos em cada nível. As contagens inválidas do Quick não são usadas para validar quantitativamente sua complexidade.
+
+\section{Como o tipo de entrada influencia o desempenho?}
+A ordem inicial altera o trabalho necessário para localizar e reposicionar elementos. Em 10.000 elementos, Insertion passou de 1,331869 s na entrada aleatória para 0,000636 s na ordenada e 2,650203 s na inversa. Bubble passou, respectivamente, de 3,227546 s para 0,000451 s e 3,918775 s. Selection permaneceu entre 1,916343 s e 1,968484 s, pois sua busca de mínimos continua percorrendo os mesmos sufixos.
+
+Merge manteve tempos entre 0,009501 s e 0,012089 s nesse tamanho. A ordem modifica as comparações durante a intercalação, mas não elimina os níveis de divisão. Heap também manteve a mesma ordem de grandeza temporal. Quick apresentou variação associada às partições e ao trabalho de movimentação.
+
+\section{Quais algoritmos são mais sensíveis à entrada ordenada ou inversa?}
+Bubble e Insertion foram os mais sensíveis no contraste observado. Na entrada ordenada de 10.000 elementos, ambos fizeram 9.999 comparações e registraram zero no contador $M$. Na inversa, Bubble fez 49.995.000 comparações e Insertion, 49.994.980. Ambos registraram 49.994.483 trocas ou deslocamentos. Esse total fica ligeiramente abaixo de $n(n-1)/2$ porque a geração permite valores repetidos, e pares iguais não constituem inversões estritas.
+
+Selection oferece o contraste: o número de comparações não mudou com a ordem inicial. Quick foi afetado, mas a entrada inversa de 10.000 elementos não produziu, nesse registro, tempos comparáveis aos algoritmos quadráticos.
+
+\section{Quando um algoritmo quadrático pode ser competitivo?}
+Uma classificação de pior caso $O(n^2)$ não exige custo quadrático em toda entrada. Bubble com parada antecipada e Insertion foram competitivos em entradas já ordenadas: em 10.000 elementos, ambos superaram temporalmente Merge, Quick e Heap. Trata-se de uma evidência experimental concreta de adaptação à entrada.
+
+Em entradas com poucas inversões, espera-se bom desempenho de Insertion, cujo trabalho depende desses deslocamentos~\cite{elementary}. Essa expectativa não foi medida aqui. Constantes menores também podem favorecer algoritmos simples em entradas pequenas, mas os resultados aleatórios de $n=100$ deste estudo não mostram vitória dos métodos quadráticos. Selection pode ser interessante quando reduzir trocas é prioritário; esse custo diferenciado não foi experimentado.
+
+\section{O comportamento do Quick Sort está de acordo com o esperado?}
+O desempenho temporal observado é compatível com uma implementação eficiente nas entradas amostradas. Em $n=10.000$, os tempos foram 0,008097 s na aleatória, 0,006605 s na ordenada e 0,011220 s na inversa. A mediana de três ajuda a explicar por que a entrada ordenada não desencadeou a degradação típica de uma escolha sistemática de pivô extremo~\cite{quick}.
+
+Entretanto, não se pode concluir que essa estratégia elimina o pior caso ou garante vantagem em todo cenário. Merge foi mais rápido na entrada inversa de 10.000 elementos e também em 1.000 elementos, neste último caso por apenas 0,000002 s, diferença insuficiente para uma conclusão robusta sem repetições. Em 100 elementos inversos, Quick foi mais rápido. A falha do contador impede uma conclusão quantitativa exata baseada nas comparações publicadas.
+
+\section{Quais fatores explicam diferenças entre teoria e experimento?}
+A análise assintótica omite constantes e termos menores. No programa, chamadas à função de chave, controle de laços Python, recursão, alocação de listas e instrumentação têm custos distintos. Além disso, comparações são contabilizadas por variáveis locais em algumas rotinas e atributos de objetos em outras, o que também pode afetar tempos.
+
+Escalonamento do sistema, frequência do processador, caches, processos concorrentes e estado do interpretador podem introduzir variação. São fatores possíveis, não causas comprovadas nesta execução, pois essas condições de execução não foram monitoradas. A primeira medição aleatória de 100 elementos, por exemplo, não deve ser usada isoladamente para ajustar uma curva de desempenho. A ordem fixa dos testes e a falta de repetição impedem separar efeitos ocasionais de diferenças persistentes.
+
+Os contadores também exigem cautela: unidades heterogêneas de $M$ não medem o mesmo custo, e a contagem do Quick subestima seu trabalho. Tempos de uma versão instrumentada não equivalem necessariamente aos de uma versão sem contadores.
+
+\section{Qual algoritmo seria indicado para cada cenário?}
+Para as entradas aleatórias estudadas, Quick é a escolha apoiada pelos menores tempos registrados. Para entradas já ordenadas, Bubble otimizado foi o mais rápido nos três tamanhos, com Insertion também apresentando comportamento linear. Para a entrada inversa de 10.000 elementos, Merge é a indicação empírica; nos tamanhos menores, as diferenças entre Merge e Quick precisam de repetições antes de sustentar uma recomendação geral.
+
+Para entradas parcialmente ordenadas, Insertion é um candidato teórico, sujeito a validação experimental. Quando estabilidade é requisito, Merge, Insertion e Bubble preservam a ordem de empates nas implementações analisadas. Quando se deseja limite de pior caso $O(n\log n)$ sem vetor auxiliar linear, Heap é uma alternativa, considerando a pilha recursiva desta versão. Esses critérios de estabilidade e memória foram examinados no código e não medidos como métricas experimentais.
+
+\chapter{Conclusão}
+A comparação evidencia que a escolha do algoritmo depende tanto do crescimento da entrada quanto de sua organização inicial. As contagens de Selection confirmam seu trabalho quadrático nos três cenários, enquanto Bubble com parada antecipada e Insertion exploram a ordem prévia para reduzir o trabalho a uma passagem linear. Nas entradas aleatórias de 10.000 elementos, os métodos de crescimento típico $n\log n$ apresentaram tempos muito inferiores aos quadráticos.
+
+Quick registrou o melhor tempo aleatório em todos os tamanhos disponíveis; Merge apresentou o menor tempo inverso em 10.000 elementos; Bubble otimizado liderou as entradas ordenadas. Essas conclusões descrevem os registros disponíveis e não estabelecem uma classificação universal dos algoritmos.
+
+O estudo cobre seis algoritmos, três tamanhos e três cenários, mas permanece limitado por medições individuais, falta do cenário parcialmente ordenado e inconsistências na instrumentação. Para consolidar a análise, recomenda-se corrigir a contagem do Quick, padronizar ou separar trocas e escritas, registrar a versão completa do interpretador e as condições de execução, repetir os ensaios e ampliar as sementes aleatórias. Uma futura avaliação de entradas parcialmente ordenadas permitirá testar diretamente a hipótese de vantagem do Insertion quando há poucas inversões. Os dados atuais sustentam a comparação descritiva apresentada, respeitadas essas limitações.
+
+\begin{thebibliography}{9}
+
+\bibitem{elementary} SEDGEWICK, Robert; WAYNE, Kevin. \textit{Algorithms, 4th edition: Elementary Sorts}. Disponível em: \url{https://algs4.cs.princeton.edu/21elementary/}. Acesso em: 16 set. 2026.
+
+\bibitem{merge} SEDGEWICK, Robert; WAYNE, Kevin. \textit{Algorithms, 4th edition: Mergesort}. Disponível em: \url{https://algs4.cs.princeton.edu/22mergesort/}. Acesso em: 16 set. 2026.
+
+\bibitem{quick} SEDGEWICK, Robert; WAYNE, Kevin. \textit{Algorithms, 4th edition: Quicksort}. Disponível em: \url{https://algs4.cs.princeton.edu/23quicksort/}. Acesso em: 16 set. 2026.
+
+\bibitem{heap} SEDGEWICK, Robert; WAYNE, Kevin. \textit{Algorithms, 4th edition: Priority Queues}. Disponível em: \url{https://algs4.cs.princeton.edu/24pq/}. Acesso em: 16 set. 2026.
+
+\bibitem{python-time} PYTHON SOFTWARE FOUNDATION. \textit{time --- Time access and conversions: perf\_counter}. Disponível em: \url{https://docs.python.org/3/library/time.html\#time.perf_counter}. Acesso em: 16 set. 2026. Referência da API; não identifica a versão utilizada no experimento.
+
+\end{thebibliography}
+\end{document}

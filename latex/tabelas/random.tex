@@ -1,0 +1,33 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Resultados completos para entrada aleatória. Tempos em segundos.}
+\label{tab:random}
+\begin{tabular}{lrrrr}
+\toprule
+Algoritmo & $n$ & Comparações & Contador $M$ & Tempo (s) \\
+\midrule
+Bubble Sort & 100 & 4\,740 & 2\,298 & 0,001349 \\
+Selection Sort & 100 & 4\,950 & 93 & 0,000924 \\
+Insertion Sort & 100 & 2\,394 & 2\,298 & 0,000590 \\
+Merge Sort & 100 & 533 & 672 & 0,000382 \\
+Quick Sort & 100 & 650 & 424 & 0,000277 \\
+Heap Sort & 100 & 1\,038 & 594 & 0,000449 \\
+\midrule
+Bubble Sort & 1\,000 & 499\,290 & 237\,493 & 0,039372 \\
+Selection Sort & 1\,000 & 499\,500 & 992 & 0,019515 \\
+Insertion Sort & 1\,000 & 238\,487 & 237\,493 & 0,013578 \\
+Merge Sort & 1\,000 & 8\,707 & 9\,976 & 0,000901 \\
+Quick Sort & 1\,000 & 10\,446 & 5\,531 & 0,000603 \\
+Heap Sort & 1\,000 & 16\,850 & 9\,099 & 0,001305 \\
+\midrule
+Bubble Sort & 10\,000 & 49\,988\,559 & 25\,076\,686 & 3,227546 \\
+Selection Sort & 10\,000 & 49\,995\,000 & 9\,994 & 1,916343 \\
+Insertion Sort & 10\,000 & 25\,086\,677 & 25\,076\,686 & 1,331869 \\
+Merge Sort & 10\,000 & 120\,341 & 133\,616 & 0,012089 \\
+Quick Sort & 10\,000 & 143\,220 & 76\,376 & 0,008097 \\
+Heap Sort & 10\,000 & 235\,369 & 124\,246 & 0,018882 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize Fonte: saída fornecida pelo grupo. $M$ segue as convenções da Seção~\ref{sec:metricas}; as comparações do Quick Sort estão subcontadas.
+\end{table}
