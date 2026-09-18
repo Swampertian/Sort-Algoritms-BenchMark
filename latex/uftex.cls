@@ -78,7 +78,7 @@ xrightmargin=10pt
 % --------------- Margens
 \RequirePackage[a4paper,top=3cm,bottom=2.0cm,left=3.0cm,right=2.cm]{geometry}
 % --------------- Links em preto
-\RequirePackage[pdftex,unicode=true,plainpages=false,pdfpagelabels,pagebackref,colorlinks=true,citecolor=black,linkcolor=black,urlcolor=black,filecolor=black,bookmarksopen=true]{hyperref}
+\RequirePackage[unicode=true,plainpages=false,pdfpagelabels,pagebackref,colorlinks=true,citecolor=black,linkcolor=black,urlcolor=black,filecolor=black,bookmarksopen=true]{hyperref}
 % --------------- soluciona o problema com o hyperref e capitulos
 %\RequirePackage[all]{hypcap}
 % --------------- Estilo de referências bibliográficas

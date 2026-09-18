@@ -1,0 +1,4 @@
+Marca UFT vertical, fundo transparente RGB.
+Fonte oficial: https://docs.uft.edu.br/share/s/CyCn0-KpTCyWT5x_P-qHvQ
+Arquivo: https://docs.uft.edu.br/share/proxy/alfresco-noauth/api/internal/shared/node/CyCn0-KpTCyWT5x_P-qHvQ/content/marcaUFT_vertical_fundotransparente_RGB.png
+Obtido em 16/09/2026. Imagem preservada, com redimensionamento proporcional na capa.
